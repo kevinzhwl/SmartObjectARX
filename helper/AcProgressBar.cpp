@@ -85,9 +85,11 @@ bool AcProgressBar::setPos(range_t nPos,ACHAR* strHint)
 
   if(nPos > mRangeMax)
     nPos = mRangeMax;
+  if(nPos < mRangeMin)
+    nPos = mRangeMin;
 
   // 换算成0~INTERNAL_RANGEMAX之间的值
-  int nInternalPos = double(nPos)/(mRangeMax-mRangeMin)*INTERNAL_RANGEMAX;
+  int nInternalPos = double(nPos-mRangeMin)/(mRangeMax-mRangeMin)*INTERNAL_RANGEMAX;
 
   if (mCurPos == nInternalPos)
     return true;
