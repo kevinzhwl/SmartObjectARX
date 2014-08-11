@@ -79,6 +79,7 @@ def process(strline,nextline,fpath,fname):
             clsname = removeLastComma(strArray[2])
 
 # 连在一起写不起作用，不知道为什么
+# 屏蔽一些无效的字节
 #('split:', ['class', 'C', ':', 'public', 'B\n'], 5)
         if strArray[1] == 'C' :#and strArray[2] == ':' and strArray[3] == 'public' and strArray[4] == 'B\n'
             clsname =''
@@ -105,6 +106,17 @@ def process(strline,nextline,fpath,fname):
         clsname = ''
     if arrayCount == 2 :
         clsname = ''
+        if strArray[1] == '\n':
+            clsname = ''
+        else :
+            strlen = len(strArray[1])
+            strlast = strArray[1][strlen-2,2]
+            if strlast == ';\n' :
+                clsname = ''
+            elif strlast[1,1] == '\n'
+                clsname = strArray[1][0:strlen-1]
+                
+
 
 
     if clsname == 'C' :
