@@ -3,7 +3,7 @@
 import fileinput,sys
 import os
 import glob
-
+import re
 
 def getAlltree(dir_path):
     for name in os.listdir(dir_path):
@@ -29,6 +29,27 @@ def removeLastComma(str):
     strlen = len(str)
     if str[strlen-1] == ':' :
         cls = str[0:strlen-1]
+    else : cls = ''
+    return cls
+
+def removeLastChars(str,cnt = 1):
+    strlen = len(str)
+    cls = str[0:strlen-cnt]
+    return cls
+
+def getSmartClsname(str,strtail):
+    strlen = len(str)
+    taillen = len(strtail)
+    if str[strlen-taillen] ==  strtail :
+        cls = str[0:strlen-taillen]
+    else : cls = ''
+    return cls
+
+def isSuffix(str,suffix):
+    strlen = len(str)
+    suflen = len(suffix)
+    if str[strlen-suflen:suflen] ==  suffix :
+        cls = str[0:strlen-suflen]
     else : cls = ''
     return cls
 
@@ -92,7 +113,8 @@ def process(strline,nextline,fpath,fname):
             clsname =''
         else :
             clsname = ''
-            
+
+        clsname = '' # for debug 
 
     if arrayCount == 4 :
         clsname = ''
@@ -102,25 +124,87 @@ def process(strline,nextline,fpath,fname):
 #            clsname = strArray[1]
 #        else :
 #            clsname = ''
+    if arrayCount == 31 :
+        clsname = ''
+#('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
+        if strArray[2] == '{\n' :
+            clsname = strArray[1]
+#('split:', ['class', 'ACDB_PORT', 'AcAutoConstrainEvaluationCallback\n'], 3)
+        elif strArray[1] == 'ACDB_PORT' :
+            clsname = removeLastChars(strArray[2])
+#('split:', ['class', 'ADESK_NO_VTABLE', 'AcDbClassIterator\n'], 3)
+        elif  strArray[1] == 'ADESK_NO_VTABLE' :
+            clsname = removeLastChars(strArray[2])
+#('split:', ['class', 'ACAD_PORT', 'AcEdInputPoint\n'], 3)
+        elif  strArray[1] == 'ACAD_PORT' :
+            clsname = removeLastChars(strArray[2])
+#('split:', ['class', 'ACTC_PORT', 'AcTcImage\n'], 3)
+        elif  strArray[1] == 'ACTC_PORT' :
+            clsname = removeLastChars(strArray[2])
+#('split:', ['class', 'AcDMMNode', '\n'], 3)
+        elif  strArray[2] == '\n' :
+            clsname = strArray[1]
+#('split:', ['class', 'ACUI_PORT', 'CAcUiMRUComboBox;\n'], 3)
+        elif  strArray[1] == 'ACUI_PORT' :
+            if re.search(r';\n$',strArray[2]) : clsname = ''
+            if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
+#            elif isSuffix(strArray[2],';\n') : clsname = ''
+#            if isSuffix(strArray[2],';\n') : clsname = ''
     if arrayCount == 3 :
         clsname = ''
+#('split:', ['class', '__declspec(novtable)', 'AdHostImageAppServices\n'], 3)
+        if r'__declspec(novtable)' == strArray[1] :
+           clsname = removeLastChars(strArray[2],1)
+#('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
+        elif re.search(r'^{?\n$',strArray[2]) :
+            clsname = strArray[1]
+        elif re.search(r'(ACUI_PORT|ACAD_PORT)|((ACTC_PORT|ADESK_NO_VTABLE)|ACDB_PORT)',strArray[1]) :
+            if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
+            elif re.search(r'[a-zA-Z0-9_]{+\n$',strArray[2]) : clsname = removeLastChars(strArray[2],2)
+        elif re.search(r'ADAF_PORT|ADUI_PORT',strArray[1]) :
+            if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
+        elif r':\n' == strArray[2] :
+            clsname = strArray[1]
+
+        if strArray[1] == 'A' or r'DLLScope' == strArray[1] :#and strArray[2] == ':' and strArray[3] == 'public' and strArray[4] == 'B\n'
+            clsname =''
+        if r'CNavListCtrl;\n' == strArray[2] or r';\n' == strArray[2] or r'CAsiUcStr;' == strArray[2] :
+            clsname = ''
+        #clsname = '' #for debug 
+            
     if arrayCount == 2 :
         clsname = ''
-        if strArray[1] == '\n':
-            clsname = ''
-        else :
-            strlen = len(strArray[1])
-            strlast = strArray[1][strlen-2,2]
+        #print( strArray)
+        strtext = strArray[1]
+        #if re.search(r';\n$',strtext) : clsname = ''
+        if re.search(r'[a-zA-Z0-9_]\n$',strtext) : clsname = removeLastChars(strtext)
+        if re.search(r'[a-zA-Z0-9_]{\n$',strtext) : clsname = removeLastChars(strtext,2)
+        #if clsname != '' : print (clsname)
+
+        clsname = '' #for debug 
+
+
+    if arrayCount == 21 :
+        clsname = ''
+        #print( strArray)
+        strtext = strArray[1]
+        strlen = len(strtext)
+        if strlen >=2 :
+            strlast = strtext[-2:]
             if strlast == ';\n' :
                 clsname = ''
-            elif strlast[1,1] == '\n'
-                clsname = strArray[1][0:strlen-1]
-                
+            elif strlast[-1] == '\n' :
+                clsname = strtext[0:-1]
+
+            print ( clsname)
+        elif strlen == 1 and strtext == '\n':
+            clsname = ''
+        else :
+            clsname = ''    
 
 
-
-    if clsname == 'C' :
-        print ('debug info c',strArray)
+#    if clsname == 'C' :
+#        print ('debug info c',strArray)
 
     if len(clsname) != 0 :
         content = '#include "' + fname + '"'
