@@ -121,7 +121,7 @@ def process(strline,nextline,fpath,fname):
         elif r':' ==strArray[2]:
             clsname = strArray[1]
 
-#        if debug_this_process : clsname = '' # for debug 
+        if debug_this_process : clsname = '' # for debug 
 
     if arrayCount == 31 :
         clsname = ''
@@ -231,6 +231,19 @@ def process(strline,nextline,fpath,fname):
            clsname = strArray[2]
 
         if debug_this_process : clsname = '' # for debug 
+
+    if arrayCount == 7 :
+        clsname = ''
+#('split:', ['class', 'AcApLayoutManager', ':', 'public', 'AcDbLayoutManager', '{\n'], 6)
+#('split:', ['class', 'AcDbLayoutManager:', 'public', 'AcRxObject', '', '{\n'], 6)
+        if re.search(r'ACDB_PORT|ADESK_NO_VTABLE|ATL_NO_VTABLE|ACFDUI_PORT|ADESK_DEPRECATED|ACTC_PORT|ACTCUI_PORT|ACUI_PORT|ADUI_PORT|AXAUTOEXP|SCENEDLLIMPEXP|LIGHTDLLIMPEXP|DLLIMPEXP|ISMDLLACCESS|ANAV_PORT',strArray[1]) :
+            if r':' == strArray[3] : clsname = strArray[2]
+            elif r'CAdUiRegistryAccess' == strArray[2] : clsname = strArray[2]
+            else : clsname = removeLastComma(strArray[2])
+        elif r':' == strArray[2]  :
+            clsname = strArray[1]
+
+#        if debug_this_process : clsname = '' # for debug 
 
 
 #    if clsname == 'C' :
