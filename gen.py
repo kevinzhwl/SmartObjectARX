@@ -170,7 +170,8 @@ def process(strline,nextline,fpath,fname):
             clsname =''
         if r'CNavListCtrl;\n' == strArray[2] or r';\n' == strArray[2] or r'CAsiUcStr;' == strArray[2] :
             clsname = ''
-        #clsname = '' #for debug 
+
+        clsname = '' #for debug 
             
     if arrayCount == 2 :
         clsname = ''
@@ -200,7 +201,31 @@ def process(strline,nextline,fpath,fname):
         elif strlen == 1 and strtext == '\n':
             clsname = ''
         else :
-            clsname = ''    
+            clsname = ''
+
+
+    if arrayCount == 6 :
+        clsname = ''
+#('split:', ['class', 'AcApLayoutManager', ':', 'public', 'AcDbLayoutManager', '{\n'], 6)
+#('split:', ['class', 'AcDbLayoutManager:', 'public', 'AcRxObject', '', '{\n'], 6)
+        if re.search(r'ACDB_PORT|ADESK_NO_VTABLE|ACFDUI_PORT|ADESK_DEPRECATED|ACTC_PORT|ACTCUI_PORT|ACUI_PORT|ADUI_PORT|AXAUTOEXP|SCENEDLLIMPEXP|LIGHTDLLIMPEXP|DLLIMPEXP|ISMDLLACCESS',strArray[1]) :
+            if r':' == strArray[3] : clsname = strArray[2]
+            else : clsname = removeLastComma(strArray[2])
+        elif r':' == strArray[2]  :
+            clsname = strArray[1]
+        elif r':' == strArray[3]  and r''==strArray[2] :
+            clsname = strArray[1]
+        elif r'public' == strArray[2] :
+            clsname = removeLastComma(strArray[1])
+        elif re.search(r'^{?\n$',strArray[5]) :
+            if r':' == strArray[2] : clsname = strArray[1]
+            elif r':' == strArray[3]: clsname = strArray[2]
+            elif r'' != removeLastComma(strArray[1]) : clsname = removeLastComma(strArray[1])
+            elif r'' != removeLastComma(strArray[2]) : clsname = removeLastComma(strArray[2])
+
+        if r'__declspec(novtable)' == strArray[1] and r':' == strArray[3]:
+           clsname = strArray[2]
+
 
 
 #    if clsname == 'C' :
