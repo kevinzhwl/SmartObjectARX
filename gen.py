@@ -243,8 +243,34 @@ def process(strline,nextline,fpath,fname):
         elif r':' == strArray[2]  :
             clsname = strArray[1]
 
-#        if debug_this_process : clsname = '' # for debug 
+        if debug_this_process : clsname = '' # for debug 
 
+    if arrayCount == 8 :
+        clsname = ''
+        if re.search(r'ACDB_PORT|ADESK_NO_VTABLE|ATL_NO_VTABLE|ACFDUI_PORT|ADESK_DEPRECATED|ACTC_PORT|ACTCUI_PORT|ACUI_PORT|ADUI_PORT|AXAUTOEXP|SCENEDLLIMPEXP|LIGHTDLLIMPEXP|DLLIMPEXP|ISMDLLACCESS|ANAV_PORT',strArray[1]) :
+            if r':' == strArray[3] : clsname = strArray[2]
+            elif r'AcDbMultiModesGripPE' == strArray[2] : clsname = strArray[2]
+            else : clsname = removeLastComma(strArray[2])
+        elif r':' == strArray[2]  :
+            clsname = strArray[1]
+
+        if debug_this_process : clsname = '' # for debug 
+
+    if arrayCount >= 9 :
+        clsname = ''
+        if re.search(r'ACDB_PORT|ADESK_NO_VTABLE|ATL_NO_VTABLE|ACFDUI_PORT|ADESK_DEPRECATED|ACTC_PORT|ACTCUI_PORT|ACUI_PORT|ADUI_PORT|AXAUTOEXP|SCENEDLLIMPEXP|LIGHTDLLIMPEXP|DLLIMPEXP|ISMDLLACCESS|ANAV_PORT',strArray[1]) :
+            if r':' == strArray[3] : clsname = strArray[2]
+            else : clsname = removeLastComma(strArray[2])
+        elif r'{' == strArray[2]  :
+            clsname = strArray[1]
+
+#('split:', ['class', 'AcGsScreenShot', '{', '', '', '', '', '', '//', 'pure', 'virtual,', 'abstract\n'], 12)
+
+        if re.search(r'ACDB_PORT|ADESK_NO_VTABLE|ATL_NO_VTABLE|ACFDUI_PORT|ADESK_DEPRECATED|ACTC_PORT|ACTCUI_PORT|ACUI_PORT|ADUI_PORT|AXAUTOEXP|SCENEDLLIMPEXP|LIGHTDLLIMPEXP|DLLIMPEXP|ISMDLLACCESS|ANAV_PORT',strArray[2]) :
+            if r':' == strArray[4] : clsname = strArray[3]
+            else : clsname = removeLastComma(strArray[3])
+
+       # if debug_this_process : clsname = '' # for debug 
 
 #    if clsname == 'C' :
 #        print ('debug info c',strArray)
