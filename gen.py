@@ -55,6 +55,7 @@ def isSuffix(str,suffix):
 
 
 def process(strline,nextline,fpath,fname):
+    debug_this_process = True
     #pre process
     strArray = strline.split(' ')
     arrayCount = 0
@@ -72,22 +73,17 @@ def process(strline,nextline,fpath,fname):
         if strArray[2] == ':':
             clsname = strArray[1]
 #('split:', ['class', 'ATL_NO_VTABLE', 'AcadToolImpl', ':', '\n'], 5)
-        elif strArray[1] == 'ATL_NO_VTABLE' and strArray[4] == ':':
-            clsname = strArray[2]
 #('split:', ['class', 'CAMERADLLIMPEXP', 'AcDbCamera:', 'public', 'AcDbEntity\n'], 5)
-        elif strArray[1] == 'CAMERADLLIMPEXP' and strArray[3] == 'public':
-            clsname = removeLastComma(strArray[2])
 #('split:', ['class', 'ADESK_NO_VTABLE', 'AcDbCurve:', 'public', 'AcDbEntity\n'], 5)
-        elif strArray[1] == 'ADESK_NO_VTABLE' and strArray[3] == 'public':
-            clsname = removeLastComma(strArray[2])
 #('split:', ['class', 'ACDB_PORT', 'AcConstrainedBoundedLine:', 'public', 'AcConstrainedLine\n'], 5)
-        elif strArray[1] == 'ACDB_PORT' and strArray[3] == 'public':
-            clsname = removeLastComma(strArray[2])
+#('split:', ['class', 'ADUI_PORT', 'CAdUiRegistryWriteAccess:', 'public', 'CAdUiRegistryAccess\n'], 5)
+        elif re.search(r'ATL_NO_VTABLE|ACAD_PORT|CAMERADLLIMPEXP|ADESK_NO_VTABLE|ACDB_PORT|ADUI_PORT',strArray[1]) :
+            if strArray[3] == ':' : clsname = strArray[2]
+            elif strArray[3] == 'public' : clsname = removeLastComma(strArray[2])
+            
 #('split:', ['class', 'AcEdServices:', 'public', 'AcRxService', '\n'], 5)
-        elif strArray[2] == 'public' and strArray[4] == '\n' :
-            clsname = removeLastComma(strArray[1])
 #('split:', ['class', 'AcDbBody:', 'public', '', 'AcDbEntity\n'], 5)
-        elif strArray[2] == 'public' and strArray[3] == '' :
+        elif strArray[2] == 'public' :
             clsname = removeLastComma(strArray[1])
 #('split:', ['class', 'AcDbHyperlinkCollection', '', '', '\n'], 5)
         elif strArray[2] == '' and strArray[3] == '' and strArray[4] == '' :
@@ -95,9 +91,6 @@ def process(strline,nextline,fpath,fname):
 #('split:', ['class', 'ACTCUI_PORT', 'CAcTcUiManager', '', '\n'], 5)
         elif strArray[1] == 'ACTCUI_PORT' and strArray[3] == '' and strArray[4] == '\n' :
             clsname = strArray[2]
-#('split:', ['class', 'ADUI_PORT', 'CAdUiRegistryWriteAccess:', 'public', 'CAdUiRegistryAccess\n'], 5)
-        elif strArray[1] == 'ADUI_PORT' and strArray[3] == 'public' :
-            clsname = removeLastComma(strArray[2])
 
 # 连在一起写不起作用，不知道为什么
 # 屏蔽一些无效的字节
@@ -114,16 +107,22 @@ def process(strline,nextline,fpath,fname):
         else :
             clsname = ''
 
-        clsname = '' # for debug 
+        if debug_this_process : clsname = '' # for debug 
 
     if arrayCount == 4 :
         clsname = ''
-#        if arrayCount == 4 and strArray[0] == 'class' and strArray[1] == 'ACDB_PORT' and strArray[3] == '{\n':
-#            clsname = strArray[2]
-#        elif arrayCount == 3 and strArray[0] == 'class' and strArray[2] == '{\n' :
-#            clsname = strArray[1]
-#        else :
-#            clsname = ''
+#('split:', ['class', '__declspec(novtable)', 'AdHostImageAppServices\n'], 3)
+        if re.search(r'ACDB_PORT|ACTC_PORT|ADESK_NO_VTABLE|ADUI_PORT|ATL_NO_VTABLE',strArray[1]) :
+            if re.search(r':$',strArray[2]) : clsname = removeLastChars(strArray[2])
+            elif re.search(r'^[:{]',strArray[3]) : clsname = strArray[2]
+        elif re.search(r':$',strArray[1]) and r'public' ==strArray[2]:
+            clsname = removeLastChars(strArray[1])
+#('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
+        elif r':' ==strArray[2]:
+            clsname = strArray[1]
+
+#        if debug_this_process : clsname = '' # for debug 
+
     if arrayCount == 31 :
         clsname = ''
 #('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
@@ -150,19 +149,22 @@ def process(strline,nextline,fpath,fname):
             if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
 #            elif isSuffix(strArray[2],';\n') : clsname = ''
 #            if isSuffix(strArray[2],';\n') : clsname = ''
+
+        if debug_this_process : clsname = '' # for debug 
+
     if arrayCount == 3 :
         clsname = ''
 #('split:', ['class', '__declspec(novtable)', 'AdHostImageAppServices\n'], 3)
         if r'__declspec(novtable)' == strArray[1] :
            clsname = removeLastChars(strArray[2],1)
-#('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
-        elif re.search(r'^{?\n$',strArray[2]) :
-            clsname = strArray[1]
-        elif re.search(r'(ACUI_PORT|ACAD_PORT)|((ACTC_PORT|ADESK_NO_VTABLE)|ACDB_PORT)',strArray[1]) :
+        elif re.search(r'ACUI_PORT|ACAD_PORT|ACTC_PORT|ADESK_NO_VTABLE|ACDB_PORT',strArray[1]) :
             if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
             elif re.search(r'[a-zA-Z0-9_]{+\n$',strArray[2]) : clsname = removeLastChars(strArray[2],2)
         elif re.search(r'ADAF_PORT|ADUI_PORT',strArray[1]) :
             if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
+#('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
+        elif re.search(r'^{?\n$',strArray[2]) :
+            clsname = strArray[1]
         elif r':\n' == strArray[2] :
             clsname = strArray[1]
 
@@ -171,7 +173,7 @@ def process(strline,nextline,fpath,fname):
         if r'CNavListCtrl;\n' == strArray[2] or r';\n' == strArray[2] or r'CAsiUcStr;' == strArray[2] :
             clsname = ''
 
-        clsname = '' #for debug 
+        if debug_this_process : clsname = '' # for debug 
             
     if arrayCount == 2 :
         clsname = ''
@@ -182,7 +184,7 @@ def process(strline,nextline,fpath,fname):
         if re.search(r'[a-zA-Z0-9_]{\n$',strtext) : clsname = removeLastChars(strtext,2)
         #if clsname != '' : print (clsname)
 
-        clsname = '' #for debug 
+        if debug_this_process : clsname = '' # for debug 
 
 
     if arrayCount == 21 :
@@ -202,6 +204,8 @@ def process(strline,nextline,fpath,fname):
             clsname = ''
         else :
             clsname = ''
+
+        if debug_this_process : clsname = '' # for debug 
 
 
     if arrayCount == 6 :
@@ -226,11 +230,13 @@ def process(strline,nextline,fpath,fname):
         if r'__declspec(novtable)' == strArray[1] and r':' == strArray[3]:
            clsname = strArray[2]
 
+        if debug_this_process : clsname = '' # for debug 
 
 
 #    if clsname == 'C' :
 #        print ('debug info c',strArray)
-
+    t_name = clsname.replace('\t', '' )
+    clsname = t_name
     if len(clsname) != 0 :
         content = '#include "' + fname + '"'
         fopath = fpath + '/'+ clsname;
