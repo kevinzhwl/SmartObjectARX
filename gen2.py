@@ -366,9 +366,9 @@ def get_class_name( str ) :
 
 
 
-def main() :
-    filepath = r'c:/autodesk/objectarx/2012/inc-r'
 
+def generate( filepath) :
+ 
     #operation very line
     dir_path = filepath
     hdrfiles = []
@@ -430,6 +430,10 @@ def main() :
 
     print 'generate finished \n'
     return
+
+def main() :
+    filepath = r'c:/autodesk/objectarx/2012/inc-r'
+    generate(filepath)
 
 # main func 
 main()
