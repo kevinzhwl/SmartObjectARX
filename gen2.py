@@ -364,7 +364,27 @@ def get_class_name( str ) :
     #str = re.findall(comment_rule,str)
     return str
 
+def get_group_name( str ) :
+    prefix = str[0:4]
+    #AcBr is empty
+    comment_rule = r'^(AcAp|AcAx|AcBr|AcCm|AcDb|AcEd|AcFd|AcGe|AcGi|AcGs|AcLy|AcPl|AcRx)'
+    if re.search(comment_rule,str) : groupn=str[0:4]
+    elif re.search('^CAcFdUi',str) : groupn='CAcFdUi'
+#    elif re.search('^AcTransaction',str) : groupn='AcTransaction'
+#    elif re.search('^AcTrayItem',str) : groupn='AcTrayItem'
+#    elif re.search('^AcPublish',str) : groupn='AcPublish'
+    else : groupn='AcMisc'
 
+    return groupn
+
+def set_group( gdict,gname,gcontent ) :
+    oldcon = gdict.get(gname, '')
+    old = oldcon.lower();
+    con = gcontent.lower();
+    if old.find(con) < 0 :
+        gdict[gname] = gcontent +"\n"+oldcon
+    
+    return gdict
 
 
 def generate( filepath) :
@@ -378,6 +398,8 @@ def generate( filepath) :
             #print name
             hdrfiles.append(name)
 
+
+    group_dict = {'AcAp':'','AcAx':'','AcBr':'','AcCm':'','AcDb':'','AcEd':'','AcFd':'','CAcFdUi':'','AcGe':'','AcGi':'','AcGs':'','AcLy':'','AcPl':'','AcRx':'','AcPublish':'','AcMisc':''}
     cls_count = 0
     for inc_name in hdrfiles :
         filename = os.path.join(filepath , inc_name)
@@ -402,10 +424,13 @@ def generate( filepath) :
         arr = []
         for k, v in enumerate(line):
             line_cnt+=1
-            line[k] = get_class_name(v)
+            cls_name= get_class_name(v)
             content = '#include "' + inc_name + '"'
-            write_file(os.path.join(filepath , line[k]),content)
-            
+            write_file(os.path.join(filepath , cls_name),content)
+            line[k] =cls_name
+            group_name = get_group_name(cls_name)
+            group_dict = set_group(group_dict,group_name,content)
+
         cls_count += line_cnt
 
         print( filename)
@@ -420,13 +445,20 @@ def generate( filepath) :
     line_cnt =0
     for k, v in enumerate(spcfiles):
         line_cnt+=1
-        fname = spcclasses[k]
+        cls_name = spcclasses[k]
         content = '#include "' +spcfiles[k] + '"'
-        write_file(os.path.join(filepath , fname),content)
+        write_file(os.path.join(filepath , cls_name),content)
+        group_name = get_group_name(cls_name)
+        group_dict = set_group(group_dict,group_name,content)
         
     cls_count += line_cnt
+    print (spcclasses)
     print( 'cls_count=',cls_count)
 
+    print(group_dict)
+    for k, v in enumerate(group_dict.keys()):
+        write_file(os.path.join(filepath , v),group_dict.get(v,''))
+ 
 
     print 'generate finished \n'
     return
