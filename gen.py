@@ -56,7 +56,7 @@ def isSuffix(str,suffix):
 
 def process(strline,nextline,fpath,fname):
     debug_this_process = True
-    debug_this_process = False
+#    debug_this_process = False
     #pre process
     strArray = strline.split(' ')
     arrayCount = 0
@@ -70,6 +70,7 @@ def process(strline,nextline,fpath,fname):
     clsname = ''
     
     if arrayCount == 5 :
+        clsname = ''
 #('split:', ['class', 'Ac3dDwfNavTreeNode', ':', 'public', 'AcRxObject\n'], 5)
         if strArray[2] == ':':
             clsname = strArray[1]
@@ -81,6 +82,7 @@ def process(strline,nextline,fpath,fname):
         elif re.search(r'ATL_NO_VTABLE|ACAD_PORT|CAMERADLLIMPEXP|ADESK_NO_VTABLE|ACDB_PORT|ADUI_PORT',strArray[1]) :
             if strArray[3] == ':' : clsname = strArray[2]
             elif strArray[3] == 'public' : clsname = removeLastComma(strArray[2])
+            print ( clsname)
             
 #('split:', ['class', 'AcEdServices:', 'public', 'AcRxService', '\n'], 5)
 #('split:', ['class', 'AcDbBody:', 'public', '', 'AcDbEntity\n'], 5)
@@ -105,10 +107,8 @@ def process(strline,nextline,fpath,fname):
             clsname =''
         elif strArray[4] == 'CAdUiSearchBoxClearButton;\n' :
             clsname =''
-        else :
-            clsname = ''
 
-        if debug_this_process : clsname = '' # for debug 
+ #       if debug_this_process : clsname = '' # for debug 
 
     if arrayCount == 4 :
         clsname = ''
