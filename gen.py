@@ -56,6 +56,7 @@ def isSuffix(str,suffix):
 
 def process(strline,nextline,fpath,fname):
     debug_this_process = True
+    debug_this_process = False
     #pre process
     strArray = strline.split(' ')
     arrayCount = 0
@@ -114,7 +115,7 @@ def process(strline,nextline,fpath,fname):
 #('split:', ['class', '__declspec(novtable)', 'AdHostImageAppServices\n'], 3)
         if re.search(r'ACDB_PORT|ACTC_PORT|ADESK_NO_VTABLE|ADUI_PORT|ATL_NO_VTABLE',strArray[1]) :
             if re.search(r':$',strArray[2]) : clsname = removeLastChars(strArray[2])
-            elif re.search(r'^[:{]',strArray[3]) : clsname = strArray[2]
+            elif re.search(r'^[:{\n]',strArray[3]) : clsname = strArray[2]
         elif re.search(r':$',strArray[1]) and r'public' ==strArray[2]:
             clsname = removeLastChars(strArray[1])
 #('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
@@ -270,7 +271,7 @@ def process(strline,nextline,fpath,fname):
             if r':' == strArray[4] : clsname = strArray[3]
             else : clsname = removeLastComma(strArray[3])
 
-       # if debug_this_process : clsname = '' # for debug 
+        if debug_this_process : clsname = '' # for debug 
 
 #    if clsname == 'C' :
 #        print ('debug info c',strArray)
@@ -295,6 +296,20 @@ def printclass(str):
             
         print ('split:', strArray ,arrayCount)
         
+
+def find_valid_line( fp ) :
+    line = fp.readline()
+    while True:
+        if not line: break
+        if isClassLine(line) :
+            thisline = line
+            line = f.readline()
+            nextline = line
+            process(thisline,nextline,filepath,name)
+            #printclass(thisline)
+        else :
+            line = f.readline()
+
 
 def main() :
     filepath = r'c:/autodesk/objectarx/2012/inc-r'
