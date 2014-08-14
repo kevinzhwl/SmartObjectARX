@@ -108,7 +108,7 @@ def process(strline,nextline,fpath,fname):
         elif strArray[4] == 'CAdUiSearchBoxClearButton;\n' :
             clsname =''
 
- #       if debug_this_process : clsname = '' # for debug 
+        if debug_this_process : clsname = '' # for debug 
 
     if arrayCount == 4 :
         clsname = ''
@@ -162,9 +162,9 @@ def process(strline,nextline,fpath,fname):
             if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
             elif re.search(r'[a-zA-Z0-9_]{+\n$',strArray[2]) : clsname = removeLastChars(strArray[2],2)
         elif re.search(r'ADAF_PORT|ADUI_PORT',strArray[1]) :
-            if re.search(r'[a-zA-Z0-9_]\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
+            if re.search(r'[a-zA-Z0-9_]+\n$',strArray[2]) : clsname = removeLastChars(strArray[2])
 #('split:', ['class', 'AcDbAppSystemVariables', '{\n'], 3)
-        elif re.search(r'^{?\n$',strArray[2]) :
+        elif re.search(r'^[{:]?\n$',strArray[2]) :
             clsname = strArray[1]
         elif r':\n' == strArray[2] :
             clsname = strArray[1]
@@ -174,7 +174,7 @@ def process(strline,nextline,fpath,fname):
         if r'CNavListCtrl;\n' == strArray[2] or r';\n' == strArray[2] or r'CAsiUcStr;' == strArray[2] :
             clsname = ''
 
-        if debug_this_process : clsname = '' # for debug 
+#        if debug_this_process : clsname = '' # for debug 
             
     if arrayCount == 2 :
         clsname = ''
