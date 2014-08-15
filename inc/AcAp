@@ -1,0 +1,6 @@
+#include "lngtrans.h"
+#include "AcStatusBar.h"
+#include "acprofile.h"
+#include "acdocman.h"
+#include "acaplmgr.h"
+#include "AcApDMgr.h"

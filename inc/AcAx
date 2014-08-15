@@ -1,0 +1,6 @@
+#include "oleaprot.h"
+#include "axpnt3d.h"
+#include "axpnt2d.h"
+#include "axobjref.h"
+#include "axmat3d.h"
+#include "axlock.h"
