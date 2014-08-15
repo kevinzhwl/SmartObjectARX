@@ -17,17 +17,18 @@ OR
 ##How to Use 
 
 ###include AcDbEntity Class Declare
-before
+before 'include the file name'
 ```
 #include <dbmain.h>
 ```
-after
+after 'include the class name '
 ```
 #include <AcDbEntity>
 ```
 
 ##About Project
 
-the project is based ObjectARX 2012 / Python 
+The project is based ObjectARX 2012 / Python 
+Only support class right now, no struct,no enum, no global functions 
 
 ##DONE & ENJOY
