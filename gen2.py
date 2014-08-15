@@ -92,12 +92,31 @@ def get_group_name( str ) :
     prefix = str[0:4]
     #AcBr is empty
     comment_rule = r'^(AcAp|AcAx|AcBr|AcCm|AcDb|AcEd|AcFd|AcGe|AcGi|AcGs|AcLy|AcPl|AcRx)'
+    comment_rule = comment_rule.lower()
+    str = str.lower()
     if re.search(comment_rule,str) : groupn=str[0:4]
-    elif re.search('^CAcFdUi',str) : groupn='CAcFdUi'
+    elif re.search(r'^cacfdui',str) : groupn='acfd'
+    elif re.search(r'constraint$',str) : groupn='acdb'
+    elif re.search(r'^acconstrained',str) : groupn='acdb'
+    elif re.search(r'^acautoconstrainevaluationcallback',str) : groupn='acdb'
+#    elif re.search('^AcTransaction',str) : groupn='AcTransaction'
+#    elif re.search('^AcTrayItem',str) : groupn='AcTrayItem'
+    elif re.search('^acpublish',str) : groupn='acpublish'
+    else : groupn='acmisc'
+
+    return groupn
+
+def get_group_name_by_file( str ) :
+    #AcBr is empty
+    comment_rule = r'^(AcAp|AcAx|AcBr|AcCm|AcDb|AcEd|AcFd|AcGe|AcGi|AcGs|AcLy|AcPl|AcRx)'
+    comment_rule = comment_rule.lower()
+    str = str.lower()
+    if re.search(comment_rule,str) : groupn=str[0:4]
+    elif re.search('^(db|ge|rx|ax',str) : groupn='ac'+ str[0:2]
 #    elif re.search('^AcTransaction',str) : groupn='AcTransaction'
 #    elif re.search('^AcTrayItem',str) : groupn='AcTrayItem'
 #    elif re.search('^AcPublish',str) : groupn='AcPublish'
-    else : groupn='AcMisc'
+    else : groupn='acmisc'
 
     return groupn
 
@@ -123,7 +142,12 @@ def generate( filepath) :
             hdrfiles.append(name)
 
 
-    group_dict = {'AcAp':'','AcAx':'','AcBr':'','AcCm':'','AcDb':'','AcEd':'','AcFd':'','CAcFdUi':'','AcGe':'','AcGi':'','AcGs':'','AcLy':'','AcPl':'','AcRx':'','AcPublish':'','AcMisc':''}
+    group_dict = {}
+    group_str = {'AcAp','AcAx','AcBr','AcCm','AcDb','AcEd','AcFd','CAcFdUi','AcGe','AcGi','AcGs','AcLy','AcPl','AcRx','AcPublish','AcMisc'}
+    for k, v in enumerate(group_str):
+        nm = v.lower()
+        group_dict[nm] = ''
+    #group_dict = {'AcAp':'','AcAx':'','AcBr':'','AcCm':'','AcDb':'','AcEd':'','AcFd':'','CAcFdUi':'','AcGe':'','AcGi':'','AcGs':'','AcLy':'','AcPl':'','AcRx':'','AcPublish':'','AcMisc':''}
     cls_count = 0
     for inc_name in hdrfiles :
         filename = os.path.join(filepath , inc_name)
@@ -154,6 +178,8 @@ def generate( filepath) :
             write_file(os.path.join(filepath , cls_name),content)
             line[k] =cls_name
             group_name = get_group_name(cls_name)
+            group_name2 = get_group_name(inc_name)
+            if group_name == 'acmisc' : group_name = group_name2
             group_dict = set_group(group_dict,group_name,content)
 
         cls_count += line_cnt
